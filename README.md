@@ -186,6 +186,27 @@ política acima garante que recorrência aparecerá na triagem, não escondida.
 - Artefatos publicados em todos os jobs de teste, mesmo em falha
   (`if: always()`), incluindo relatório HTML e triagem.
 
+### Executar a CI localmente (act + Docker)
+
+O workflow pode ser executado de ponta a ponta antes do push, com
+[act](https://github.com/nektos/act) e Docker. Foi assim que esta entrega foi
+validada (imagem local com as dependências do Cypress):
+
+```bash
+# imagem local: ghcr.io/catthehacker/ubuntu:act-22.04 + xvfb/libgtk (ver /tmp/act-img/Dockerfile)
+docker build -t act-cypress:22.04 /tmp/act-img
+act push -P ubuntu-latest=act-cypress:22.04 --pull=false --bind=false \
+  --container-options "--network=bridge" \
+  --artifact-server-path /tmp/act-artifacts
+```
+
+Notas de fidelidade do runner local: `--network=bridge` isola o Xvfb de jobs
+paralelos (com `network=host` eles colidem no socket X — limitação do act,
+não do workflow); artefatos ficam em `/tmp/act-artifacts`; no GitHub hospedado
+cada job já recebe uma VM isolada e o `continue-on-error` do job informativo
+mantém a conclusão da run como sucesso (o act encerra com exit 1 — diferença
+conhecida de fidelidade).
+
 ## 11. Troubleshooting
 
 | Sintoma | Causa provável | Ação |
