@@ -70,10 +70,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Pré-checagem de acessibilidade da API externa
+        id: probe
+        # Sonda /api/verifyLogin com credenciais inertes. A API pública
+        # bloqueia IPs de datacenter (Cloudflare 403); a sondagem classifica
+        # o ambiente e grava evidência em cypress/evidencias/probe-api.json.
+        run: node scripts/check-api-reachability.mjs
       - uses: cypress-io/github-action@v6
         with:
           install-command: npm ci
-          command: npm run test:api
+          # Modo controlado: suíte completa se acessível; senão, apenas os
+          # contratos API-01 (independentes do site) + aviso de bloqueio.
+          # API-02 bloqueada NUNCA é reportada como sucesso: fica ausente do
+          # relatório, com a evidência do probe publicada nos artefatos.
+          command: bash scripts/run-api-suite.sh "${{ steps.probe.outputs.reachable }}"
       - name: Relatório e evidências
         if: always()
         run: npm run report

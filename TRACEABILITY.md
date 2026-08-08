@@ -59,9 +59,9 @@ Limite declarado: pagamento simulado, sem gateway real; validado apenas o compor
 
 | Cenário | Objetivo | Automação | Evidência | Status |
 |---|---|---|---|---|
-| API02-CT01 | Sucesso com dados únicos: status + contrato + regra (201); limpeza | `api/conta-automation-exercise.feature` → `conta.steps.ts` + `automation-exercise.client.ts`, `user.factory.ts` | relatório HTML | ✅ |
-| API02-CT02 | Parâmetros ausentes (email/name/password): responseCode 400 + mensagem | idem (Scenario Outline, 3 exemplos) | relatório HTML | ✅ |
-| API02-CT03 | E-mail duplicado: responseCode 400 "Email already exists!" | idem | relatório HTML | ✅ |
+| API02-CT01 | Sucesso com dados únicos: status + contrato + regra (201); limpeza | `api/conta-automation-exercise.feature` → `conta.steps.ts` + `automation-exercise.client.ts`, `user.factory.ts` | relatório HTML | ✅ local/act · ⚠️ CI hospedada (Cloudflare 403 em IP de datacenter — modo controlado com evidência) |
+| API02-CT02 | Parâmetros ausentes (email/name/password): responseCode 400 + mensagem | idem (Scenario Outline, 3 exemplos) | relatório HTML | ✅ local/act · ⚠️ CI hospedada (idem) |
+| API02-CT03 | E-mail duplicado: responseCode 400 "Email already exists!" | idem | relatório HTML | ✅ local/act · ⚠️ CI hospedada (idem) |
 
 ## Cobertura por critério de aceite
 

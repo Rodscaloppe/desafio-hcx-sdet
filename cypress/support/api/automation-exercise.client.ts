@@ -1,5 +1,6 @@
 import { getConfig } from '../env';
 import type { ApiObservation } from '../context';
+import { buildEvidence, persistApiEvidence } from '../utils/evidence';
 import {
   toCreateAccountPayload,
   type TestUser,
@@ -14,9 +15,9 @@ import {
  * real é o campo `responseCode` no corpo (quirk documentado no README).
  *
  * Headers: o site público fica atrás de Cloudflare, que desafia requisições
- * sem cara de navegador vindas de IPs de datacenter (observado na CI
- * hospedada: /api/* respondia HTML de challenge). Enviamos headers de
- * navegador explicitamente — são chamadas reais, sem mascaramento.
+ * vindas de IPs de datacenter (observado na CI hospedada). Enviamos headers
+ * de navegador explicitamente — são chamadas reais, sem mascaramento — e,
+ * se ainda assim houver bloqueio, ele é classificado como ambiente.
  */
 const BROWSER_HEADERS = {
   'User-Agent':
@@ -24,6 +25,7 @@ const BROWSER_HEADERS = {
   Accept: 'application/json, text/plain, */*',
   'Accept-Language': 'en-US,en;q=0.9',
 };
+
 export interface AeApiBody {
   responseCode: number;
   message: string;
@@ -36,8 +38,6 @@ function normalizeBody(raw: unknown): AeApiBody {
     try {
       return JSON.parse(raw) as AeApiBody;
     } catch {
-      // Resposta HTML em endpoint JSON = challenge de bot (Cloudflare) —
-      // classificado como bloqueio de ambiente, nunca como defeito de produto.
       throw new Error(
         '[BLOQUEIO DE AMBIENTE] A API respondeu conteúdo não-JSON ' +
           '(provável challenge anti-bot em IP de datacenter). ' +
@@ -48,30 +48,67 @@ function normalizeBody(raw: unknown): AeApiBody {
   return raw as AeApiBody;
 }
 
-function toObservation(
+/** Assinatura de bloqueio anti-bot: 403 + headers Cloudflare. */
+export function isAmbienteBloqueado(response: {
+  status: number;
+  headers: Record<string, string>;
+}): boolean {
+  const headerNames = Object.keys(response.headers).map((h) =>
+    h.toLowerCase(),
+  );
+  const server = String(response.headers['server'] ?? '').toLowerCase();
+  return (
+    response.status === 403 &&
+    (server.includes('cloudflare') || headerNames.includes('cf-ray'))
+  );
+}
+
+/**
+ * Converte a resposta crua do Cypress em observação, tratando o bloqueio
+ * de ambiente com evidência persistida e erro classificado para a triagem.
+ */
+function observar(
+  request: { method: string; url: string; body?: Record<string, string> },
   response: Cypress.Response<unknown>,
 ): ApiObservation {
-  return {
+  const observation: ApiObservation = {
     status: response.status,
     headers: response.headers as Record<string, string>,
-    body: normalizeBody(response.body),
+    body: response.body,
   };
+  if (isAmbienteBloqueado(observation)) {
+    persistApiEvidence(
+      `bloqueio-ambiente-${Date.now()}`,
+      buildEvidence(request, {
+        status: observation.status,
+        headers: observation.headers,
+        body: '(corpo de challenge anti-bot omitido)',
+      }),
+    );
+    throw new Error(
+      '[BLOQUEIO DE AMBIENTE] A API respondeu 403 com assinatura de ' +
+        'anti-bot (Cloudflare): o endpoint público bloqueia IPs de ' +
+        'datacenter. Executar a suíte em rede permitida (local/self-hosted).',
+    );
+  }
+  return { ...observation, body: normalizeBody(response.body) };
 }
 
 function postForm(
   path: string,
   body: Record<string, string>,
 ): Cypress.Chainable<ApiObservation> {
+  const url = `${getConfig().aeApiUrl}${path}`;
   return cy
     .request({
       method: 'POST',
-      url: `${getConfig().aeApiUrl}${path}`,
+      url,
       headers: BROWSER_HEADERS,
       form: true,
       body,
       failOnStatusCode: false,
     })
-    .then(toObservation);
+    .then((response) => observar({ method: 'POST', url, body }, response));
 }
 
 export function apiCreateAccount(
@@ -90,16 +127,19 @@ export function apiDeleteAccount(
   email: string,
   password: string,
 ): Cypress.Chainable<ApiObservation> {
+  const url = `${getConfig().aeApiUrl}/deleteAccount`;
   return cy
     .request({
       method: 'DELETE',
-      url: `${getConfig().aeApiUrl}/deleteAccount`,
+      url,
       headers: BROWSER_HEADERS,
       form: true,
       body: { email, password },
       failOnStatusCode: false,
     })
-    .then(toObservation);
+    .then((response) =>
+      observar({ method: 'DELETE', url, body: { email, password } }, response),
+    );
 }
 
 export function apiVerifyLogin(

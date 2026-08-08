@@ -11,6 +11,7 @@
     "test:smoke": "cypress run --env tags='@smoke'",
     "test:e2e": "cypress run --env tags='@web and not @known-issue'",
     "test:api": "cypress run --env tags='@api and not @trello-auth'",
+    "test:api:contratos": "cypress run --env tags='@API-01 and not @trello-auth'",
     "test:api:trello": "cypress run --env tags='@trello-auth'",
     "test:known-issues": "cypress run --env tags='@known-issue'",
     "test:all": "cypress run --env tags='not @trello-auth'",

@@ -24,13 +24,13 @@ export const KNOWN_ISSUES = {
  */
 export const CLASSIFICATION_RULES = [
   {
-    padrao: /BLOQUEIO DE AMBIENTE/i,
+    padrao: /BLOQUEIO DE AMBIENTE|anti-bot|Cloudflare|403 com assinatura/i,
     classificacao: 'indisponibilidade de ambiente',
     severidade: 'bloqueadora',
     hipotese:
-      'Configuração de ambiente ausente (credenciais/endpoint não provisionados).',
+      'Configuração de ambiente ausente (credenciais/endpoint) ou bloqueio anti-bot do serviço público em IP de datacenter.',
     recomendacao:
-      'Provisionar as variáveis de ambiente documentadas no .env.example e reexecutar a suíte dedicada.',
+      'Provisionar as variáveis de ambiente documentadas no .env.example ou executar a suíte em rede permitida (local/self-hosted); ver evidência sanitizada nos artefatos.',
     responsavelSugerido: 'SDET/DevOps',
   },
   {

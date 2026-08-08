@@ -135,6 +135,15 @@ camada de API desacoplada da camada visual.
 
 ### Não validado (limitação do ambiente)
 
+- **API do Automation Exercise a partir de runners hospedados (GitHub
+  Actions)**: o Cloudflare do site público responde **403 anti-bot** para
+  chamadas `/api/*` vindas de IP de datacenter (a navegação web normal
+  passa — a suíte E2E fica verde na CI). Tratamento: pré-checagem de
+  acessibilidade (`scripts/check-api-reachability.mjs`) + modo controlado na
+  CI — API-02 bloqueada fica **ausente do relatório** (nunca verde por
+  omissão), com evidência do probe publicada e classificação
+  `indisponibilidade de ambiente`. A suíte completa de API é validada em
+  rede permitida (local/`act`) e seus artefatos estão nesta entrega.
 - **Pagamento real**: o checkout usa formulário simulado, sem gateway. Usamos
   PAN de teste público (`4111...`) e validamos apenas o comportamento
   observável (validação de campos e confirmação do pedido).
