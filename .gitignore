@@ -1,0 +1,15 @@
+node_modules/
+.env
+
+# Artefatos de execução e evidências (gerados a cada run)
+cypress/reports/
+cypress/screenshots/
+cypress/videos/
+cypress/evidencias/*
+!cypress/evidencias/.gitkeep
+
+# Ferramentas do ambiente de desenvolvimento (não fazem parte da entrega)
+skills/
+
+# Cypress cache local
+.Cypress/

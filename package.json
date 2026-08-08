@@ -1,0 +1,49 @@
+{
+  "name": "desafio-hcx-sdet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Desafio técnico QA/SDET HCXpert - automação web e API (Automation Exercise + Trello) com Cypress, TypeScript e Cucumber",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test:smoke": "cypress run --env tags='@smoke'",
+    "test:e2e": "cypress run --env tags='@web and not @known-issue'",
+    "test:api": "cypress run --env tags='@api and not @trello-auth'",
+    "test:api:trello": "cypress run --env tags='@trello-auth'",
+    "test:known-issues": "cypress run --env tags='@known-issue'",
+    "test:all": "cypress run --env tags='not @trello-auth'",
+    "test:open": "cypress open",
+    "report": "node scripts/generate-report.mjs"
+  },
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^20.1.2",
+    "@eslint/js": "^9.13.0",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
+    "@types/node": "^20.14.0",
+    "ajv": "^8.17.1",
+    "cypress": "^13.17.0",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.13.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "multiple-cucumber-html-reporter": "^3.6.0",
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.11.0"
+  },
+  "cypress-cucumber-preprocessor": {
+    "stepDefinitions": "cypress/e2e/step_definitions/**/*.ts",
+    "json": {
+      "enabled": true,
+      "output": "cypress/reports/cucumber-report.json"
+    },
+    "messages": {
+      "enabled": true,
+      "output": "cypress/reports/cucumber-messages.ndjson"
+    },
+    "html": {
+      "enabled": false
+    },
+    "omitFiltered": true
+  }
+}

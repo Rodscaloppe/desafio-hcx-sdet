@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Trello List",
+  "description": "Contrato mínimo do objeto de lista retornado por GET /1/lists/{id}",
+  "type": "object",
+  "required": ["id", "name", "closed", "idBoard"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string" },
+    "closed": { "type": "boolean" },
+    "idBoard": { "type": "string", "minLength": 1 },
+    "pos": { "type": ["number", "string"] }
+  }
+}

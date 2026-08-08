@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Automation Exercise API Message",
+  "description": "Contrato padrão das respostas da API do Automation Exercise: o código de negócio viaja no corpo (responseCode) e o HTTP status é sempre 200.",
+  "type": "object",
+  "required": ["responseCode", "message"],
+  "properties": {
+    "responseCode": { "type": "integer" },
+    "message": { "type": "string", "minLength": 1 }
+  }
+}
