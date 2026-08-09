@@ -148,3 +148,51 @@ export function apiVerifyLogin(
 ): Cypress.Chainable<ApiObservation> {
   return postForm('/verifyLogin', { email, password });
 }
+
+/**
+ * Variante não explosiva para hooks de provisionamento: em vez de lançar
+ * erro em bloqueio anti-bot, retorna { blocked: true } — permitindo ao
+ * chamador escolher o caminho alternativo (provisionamento via UI).
+ */
+export function apiTryCreateAccount(
+  user: TestUser,
+): Cypress.Chainable<
+  { blocked: true } | { blocked: false; observation: ApiObservation }
+> {
+  const url = `${getConfig().aeApiUrl}/createAccount`;
+  const body = toCreateAccountPayload(user);
+  return cy
+    .request({
+      method: 'POST',
+      url,
+      headers: BROWSER_HEADERS,
+      form: true,
+      body,
+      failOnStatusCode: false,
+    })
+    .then((response) => {
+      const base: ApiObservation = {
+        status: response.status,
+        headers: response.headers as Record<string, string>,
+        body: response.body,
+      };
+      if (isAmbienteBloqueado(base)) {
+        persistApiEvidence(
+          `bloqueio-ambiente-${Date.now()}`,
+          buildEvidence(
+            { method: 'POST', url, body },
+            {
+              status: base.status,
+              headers: base.headers,
+              body: '(corpo de challenge anti-bot omitido)',
+            },
+          ),
+        );
+        return { blocked: true as const };
+      }
+      return {
+        blocked: false as const,
+        observation: { ...base, body: normalizeBody(response.body) },
+      };
+    });
+}

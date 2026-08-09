@@ -57,12 +57,15 @@ registradas em `cypress/evidencias/`.
    apenas para termos de busca. Em 5 execuções locais do smoke houve 1 falha
    transitória isolada, atribuída a oscilação do ambiente; se recorrer, a
    triagem a promoverá a investigação (política de retry não a mascara).
-5. **(Ambiente) Anti-bot na API pública**: o Cloudflare do Automation
-   Exercise bloqueia `/api/*` de IPs de datacenter (HTTP 403) — confirmado na
-   CI hospedada; a navegação web não é afetada. Mitigação implementada:
-   sondagem de acessibilidade + modo controlado + evidência classificada;
-   em iniciativa real: ambiente de homologação próprio ou allowlist de IP,
-   eliminando a dependência do site público.
+5. **(Ambiente) Anti-bot do site público em datacenters**: o Cloudflare do
+   Automation Exercise bloqueia `/api/*` de IPs de datacenter (HTTP 403) e,
+   em parte dos runners, serve challenge até para navegação (loop de
+   redirects) — confirmado em runs reais hospedadas. Mitigações
+   implementadas: sondagens de acessibilidade (web e API) + modo controlado
+   com evidência + provisionamento adaptativo de usuários (API → UI) +
+   classificação automática na triagem. Em iniciativa real: ambiente de
+   homologação próprio ou allowlist de IP, eliminando a dependência do site
+   público.
 
 ## 4. Riscos residuais sem cobertura (fora de escopo, com tratamento proposto)
 

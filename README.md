@@ -137,13 +137,22 @@ camada de API desacoplada da camada visual.
 
 - **API do Automation Exercise a partir de runners hospedados (GitHub
   Actions)**: o Cloudflare do site público responde **403 anti-bot** para
-  chamadas `/api/*` vindas de IP de datacenter (a navegação web normal
-  passa — a suíte E2E fica verde na CI). Tratamento: pré-checagem de
+  chamadas `/api/*` vindas de IP de datacenter. Tratamento: pré-checagem de
   acessibilidade (`scripts/check-api-reachability.mjs`) + modo controlado na
   CI — API-02 bloqueada fica **ausente do relatório** (nunca verde por
   omissão), com evidência do probe publicada e classificação
   `indisponibilidade de ambiente`. A suíte completa de API é validada em
   rede permitida (local/`act`) e seus artefatos estão nesta entrega.
+- **Site sob challenge anti-bot em alguns runners hospedados**: dependendo
+  do IP de saída, o Cloudflare serve página de challenge que vira loop de
+  redirects no browser (observado em run real: busca/carrinho/login
+  impossíveis naquele runner). Tratamento idêntico: pré-checagem web
+  (`scripts/check-web-reachability.mjs`) + modo controlado com evidência —
+  e, quando o site está acessível mas a API não, o provisionamento de
+  usuários **cai automaticamente para o cadastro pela UI**
+  (`PROVISIONING_STRATEGY=auto`), mantendo a suíte web executável.
+  Recomendação real: ambiente de homologação próprio ou runner self-hosted
+  em rede permitida.
 - **Pagamento real**: o checkout usa formulário simulado, sem gateway. Usamos
   PAN de teste público (`4111...`) e validamos apenas o comportamento
   observável (validação de campos e confirmação do pedido).

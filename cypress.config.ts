@@ -49,6 +49,8 @@ export default defineConfig({
       TRELLO_API_KEY: process.env.TRELLO_API_KEY ?? '',
       TRELLO_API_TOKEN: process.env.TRELLO_API_TOKEN ?? '',
       TRELLO_LIST_ID: process.env.TRELLO_LIST_ID ?? '',
+      // Estratégia de provisionamento de usuários: auto|api|ui (ver hooks.ts)
+      PROVISIONING_STRATEGY: process.env.PROVISIONING_STRATEGY ?? 'auto',
     },
 
     async setupNodeEvents(

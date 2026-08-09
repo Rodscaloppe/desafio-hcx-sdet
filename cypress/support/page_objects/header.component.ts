@@ -42,4 +42,13 @@ export class HeaderComponent {
     cy.get(this.links.logout).should('not.exist');
     cy.get(this.links.login).should('be.visible');
   }
+
+  /** Exclui a conta da sessão atual (teardown via UI). */
+  deleteAccount(): void {
+    cy.get(this.links.deleteAccount).click();
+    // O texto do DOM é "Account Deleted!" — o uppercase é via CSS
+    // (text-transform); por isso a correspondência é case-insensitive.
+    cy.contains(/account deleted!/i).should('be.visible');
+    cy.get('[data-qa="continue-button"]').click();
+  }
 }

@@ -30,6 +30,9 @@ class ScenarioContext {
   /** true quando a suíte criou o usuário via API e deve removê-lo no teardown. */
   provisionedBySuite = false;
 
+  /** Caminho de provisionamento usado: 'api' (padrão) ou 'ui' (fallback anti-bot). */
+  provisioningMethod: 'api' | 'ui' = 'api';
+
   /** Payload bruto preparado para chamadas de API (ex.: parâmetro removido). */
   apiPayload?: Record<string, string>;
 
@@ -48,6 +51,7 @@ class ScenarioContext {
   reset(): void {
     this.currentUser = undefined;
     this.provisionedBySuite = false;
+    this.provisioningMethod = 'api';
     this.apiPayload = undefined;
     this.lastApiResponse = undefined;
     this.searchTerm = undefined;

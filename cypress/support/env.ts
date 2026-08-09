@@ -40,6 +40,22 @@ export function hasConfiguredTestUser(): boolean {
   return Boolean(testUser.email && testUser.password);
 }
 
+/**
+ * Estratégia de provisionamento de usuários:
+ * - 'auto' (padrão): tenta a API; se bloqueada por anti-bot, cai para a UI;
+ * - 'api': somente API (falha classificada se bloqueada);
+ * - 'ui':  somente cadastro pela UI (útil para validar o fallback).
+ */
+export function provisioningStrategy(): 'auto' | 'api' | 'ui' {
+  const strategy = String(
+    Cypress.env('PROVISIONING_STRATEGY') ?? 'auto',
+  ).toLowerCase();
+  if (strategy === 'api' || strategy === 'ui') {
+    return strategy;
+  }
+  return 'auto';
+}
+
 /** Indica se a integração Trello autenticada está configurada. */
 export function hasTrelloCredentials(): boolean {
   const { trello } = getConfig();
