@@ -108,7 +108,7 @@ jobs:
           # contratos API-01 (independentes do site) + aviso de bloqueio.
           # API-02 bloqueada NUNCA é reportada como sucesso: fica ausente do
           # relatório, com a evidência do probe publicada nos artefatos.
-          command: bash scripts/run-api-suite.sh "${{ steps.probe.outputs.reachable }}"
+          command: bash scripts/run-api-suite.sh ${{ steps.probe.outputs.reachable }}
       - name: Relatório e evidências
         if: always()
         run: npm run report

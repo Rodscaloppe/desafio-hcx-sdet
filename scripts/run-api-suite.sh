@@ -7,7 +7,12 @@
 #                      ambiente (evidência em cypress/evidencias/probe-api.json)
 set -euo pipefail
 
-if [ "${1:-true}" = "true" ]; then
+# Normaliza o argumento (alguns executores repassam aspas literais).
+REACHABLE="${1:-true}"
+REACHABLE="${REACHABLE//\"/}"
+REACHABLE="${REACHABLE//\'/}"
+
+if [ "$REACHABLE" = "true" ]; then
   echo "Ambiente acessível: executando suíte de API completa."
   npm run test:api
 else
